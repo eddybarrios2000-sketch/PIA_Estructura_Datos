@@ -20,12 +20,14 @@ struct Alumno
 typedef struct Alumno* Nodo_alumno;
 
 void alta_alumno(Nodo_alumno& head);
-void baja_alumno(Nodo_alumno& head, int contador, Nodo_alumno& stack_head);
+void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head);
 bool busqueda_binaria(Nodo_alumno& head, int matricula, int contador, Nodo_alumno& stack_head);
 void push(Nodo_alumno& stack_head, Nodo_alumno alumno);
 void pop(Nodo_alumno& stack_head);
 Nodo_alumno quick_sort(Nodo_alumno head);
 void insertar_en_lista(Nodo_alumno& headf, Nodo_alumno nuevo);
+void recuperar_alumno(Nodo_alumno& head, Nodo_alumno& stack_head, int&contador);
+void imprimir_alumnos(Nodo_alumno& head);
 
 int main()
 {
@@ -73,7 +75,8 @@ int main()
                 break;
 
             case 3:
-
+                recuperar_alumno(head, stack_head, contador);
+                head = quick_sort(head);
                 break;
 
             case 4:
@@ -89,6 +92,7 @@ int main()
                 break;
 
             default:
+                imprimir_alumnos(head);
                 break;
         }
 
@@ -140,7 +144,7 @@ void alta_alumno(Nodo_alumno& head)
     }
 }
 
-void baja_alumno(Nodo_alumno& head, int contador, Nodo_alumno& stack_head)
+void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head)
 {
     int opcion;
     string ans;
@@ -212,7 +216,7 @@ void baja_alumno(Nodo_alumno& head, int contador, Nodo_alumno& stack_head)
 
                     cout << "Alumno temporalmente eliminado con exito" << endl;
                 	contador--;
-
+                    delete temp;
                     flag = false;
 
                     break;
@@ -422,5 +426,62 @@ void insertar_en_lista(Nodo_alumno& headf, Nodo_alumno nuevo)
 
         temp->siguiente = nuevo;
         nuevo->anterior = temp;
+    }
+}
+
+void recuperar_alumno(Nodo_alumno& head, Nodo_alumno& stack_head, int& contador)
+{
+    char ans[3];
+    do
+    {
+        if (stack_head != nullptr)
+        {
+            Nodo_alumno temp = stack_head;
+
+            stack_head = stack_head->siguiente;
+
+            temp->siguiente = nullptr;
+            temp->anterior = nullptr;
+
+            insertar_en_lista(head, temp);
+            contador ++;
+
+            cout << "Ultimo alumno recuperado con exito" << endl;
+        }
+        else
+        {
+            cout << "No hay alumnos, La pila esta vacia" << endl;
+        }
+        
+        cout << "Desea recuperar al siguiente alumno? (si/no): ";
+        cin >> ws;
+        cin.getline(ans, 3);
+
+    } while (strcmp(ans, "si") == 0);
+    
+}
+
+void imprimir_alumnos(Nodo_alumno& head)
+{
+    if (head == nullptr)
+    {
+        cout << "No hay alumnos registrados" << endl;
+    }
+    else
+    {
+        Nodo_alumno temp = head;
+
+        while (temp != nullptr)
+        {
+            cout << "Matricula: " << temp->matricula << endl;
+            cout << "Nombre: " << temp->nombre << endl;
+            cout << "Edad: " << temp->edad << endl;
+            cout << "Promedio General: " << temp->promedio_general << endl;
+            cout << "Direccion: " << temp->direccion << endl;
+            cout << "Telefono: " << temp->telefono << endl;
+            cout << "-----------------------------" << endl;
+
+            temp = temp->siguiente;
+        }
     }
 }
