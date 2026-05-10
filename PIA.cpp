@@ -28,6 +28,9 @@ Nodo_alumno quick_sort(Nodo_alumno head);
 void insertar_en_lista(Nodo_alumno& headf, Nodo_alumno nuevo);
 void recuperar_alumno(Nodo_alumno& head, Nodo_alumno& stack_head, int&contador);
 void imprimir_alumnos(Nodo_alumno& head);
+void reportes(Nodo_alumno& head, Nodo_alumno& stack_head, int contador);
+
+
 
 int main()
 {
@@ -80,7 +83,7 @@ int main()
                 break;
 
             case 4:
-
+				reportes(head, stack_head, contador);
                 break;
 
             case 5:
@@ -484,4 +487,119 @@ void imprimir_alumnos(Nodo_alumno& head)
             temp = temp->siguiente;
         }
     }
+}
+
+void reportes(Nodo_alumno& head, Nodo_alumno& stack_head, int contador)
+{
+    int opcion_reporte,contador_alumno,contador_inactivo;
+    int aprobados = 0;
+    int reprobados = 0;
+    
+    do
+    {
+        cout << "\n----- REPORTES -----" << endl;
+        cout << "1. Porcentaje de alumnos aprobados y reprobados" << endl;
+        cout << "2. Datos generales de estudiantes activos" << endl;
+        cout << "3. Alumnos inactivos (pila de bajas)" << endl;
+        cout << "4. Volver al menu principal" << endl;
+        cout << "Ingrese una opcion: ";
+        cin >> opcion_reporte;
+        
+        switch(opcion_reporte)
+        {
+            case 1:
+            {
+                if(head == nullptr)
+                
+                    cout << "No hay alumnos activos" << endl;
+                
+                else
+                {
+                    Nodo_alumno temp = head;
+                    
+                    while(temp != nullptr)
+                    {
+                        if(temp->promedio_general >= 70)
+
+                            aprobados++;
+                    
+                        else
+                        
+                            reprobados++;
+                        
+                        temp = temp->siguiente;
+                    }
+                    
+                    
+                    cout << "\n----- RESULTADOS -----" << endl;
+                    cout << "Total de alumnos activos: " << contador << endl;
+                    cout << "Alumnos aprobados: " << aprobados << " (" << (aprobados * 100.0) / contador << "%)" << endl;
+                    cout << "Alumnos reprobados: " << reprobados << " (" << (reprobados * 100.0) / contador << "%)" << endl;
+                }
+                break;
+            }
+            
+            case 2:
+            {
+                if(head == nullptr)
+                
+                    cout << "No hay alumnos activos" << endl;
+                
+                else
+                {
+                    cout << "\n----- DATOS GENERALES DE ALUMNOS ACTIVOS -----" << endl;
+                    Nodo_alumno temp = head;
+                    contador_alumno = 1;
+                    
+                    while(temp != nullptr)
+                    {
+                        cout << "\nAlumno #" << contador_alumno << endl;
+                        cout << "Nombre: " << temp->nombre << endl;
+                        cout << "Edad: " << temp->edad << endl;
+                        cout << "Direccion: " << temp->direccion << endl;
+                        cout << "Telefono: " << temp->telefono << endl;
+                        cout << "-----------------------------------" << endl;
+                        
+                        temp = temp->siguiente;
+                        contador_alumno++;
+                    }
+                }
+                break;
+            }
+            
+            case 3:
+            {
+                if(stack_head == nullptr)
+                
+                    cout << "No hay alumnos inactivos" << endl;
+                
+                else
+                {
+                    cout << "\n----- ALUMNOS INACTIVOS (BAJAS PARCIALES) -----" << endl;
+                    Nodo_alumno temp = stack_head;
+                    contador_inactivo = 1;
+                    
+                    while(temp != nullptr)
+                    {
+                        cout << "\nAlumno #" << contador_inactivo << endl;
+                        cout << "Matricula: " << temp->matricula << endl;
+                        cout << "Nombre: " << temp->nombre << endl;
+                        cout << "-----------------------------------" << endl;
+                        
+                        temp = temp->siguiente;
+                        contador_inactivo++;
+                    }
+                }
+                break;
+            }
+            
+            case 4:
+                break;
+                
+            default:
+                cout << "Opcion no valida" << endl;
+                break;
+        }
+        
+    } while(opcion_reporte != 4);
 }
