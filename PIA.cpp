@@ -29,6 +29,10 @@ void insertar_en_lista(Nodo_alumno& headf, Nodo_alumno nuevo);
 void recuperar_alumno(Nodo_alumno& head, Nodo_alumno& stack_head, int&contador);
 void imprimir_alumnos(Nodo_alumno& head);
 void reportes(Nodo_alumno& head, Nodo_alumno& stack_head, int contador);
+void control_inscripciones(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nodo_alumno& head);
+Nodo_alumno quick_sort_promedios(Nodo_alumno& head);
+void encolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nodo_alumno alumno);
+Nodo_alumno desencolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue);
 
 
 
@@ -40,6 +44,8 @@ int main()
 
     Nodo_alumno head = nullptr;
     Nodo_alumno stack_head = nullptr;
+    Nodo_alumno head_queue = nullptr;
+    Nodo_alumno tail_queue = nullptr;
 
     do
     {
@@ -87,7 +93,7 @@ int main()
                 break;
 
             case 5:
-
+                control_inscripciones(head_queue, tail_queue, head);
                 break;
 
             case 6:
@@ -602,4 +608,172 @@ void reportes(Nodo_alumno& head, Nodo_alumno& stack_head, int contador)
         }
         
     } while(opcion_reporte != 4);
+}
+
+void control_inscripciones(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nodo_alumno& head)
+{
+    Nodo_alumno head_sorted_prom = head;
+    head_sorted_prom = quick_sort_promedios(head_sorted_prom);
+    int grupos=0, alumnos=0, i=0, j=0;
+
+
+    cout << "\n----- CONTROL DE INSCRIPCIONES -----" << endl;
+    cout << "Ingrese el numero de grupos disponibles: ";
+    cin >> grupos;
+    cout << "Ingrese el numero maximo de alumnos por grupo: ";
+    cin >> alumnos;
+    int matriz[grupos][alumnos];
+
+    Nodo_alumno temp = head_sorted_prom;
+    while (temp != nullptr)
+    {
+        encolar(head_queue, tail_queue, temp);
+        temp = temp->siguiente;
+    }
+
+    for(i = 0; i < grupos; i++)
+    {
+        cout << "\nGrupo #" << i + 1 << endl;
+        for(j = 0; j < alumnos; j++)
+        {
+            Nodo_alumno alumno_inscrito = desencolar(head_queue, tail_queue);
+            if(alumno_inscrito != nullptr)
+            {
+                matriz[i][j] = alumno_inscrito->matricula;
+                cout << "Alumno matricula: " << alumno_inscrito->matricula << " - Nombre: " << alumno_inscrito->nombre << "\nAgreado con exito" << endl;
+            }
+            else
+            {
+                cout << "No hay mas alumnos para inscribir" << endl;
+                break;
+            }
+        }
+    }
+
+
+
+}
+
+Nodo_alumno quick_sort_promedios(Nodo_alumno& head)
+{
+        if (head == nullptr || head->siguiente == nullptr)
+        {
+            return head;
+        }
+    
+        Nodo_alumno pivote = head;
+        Nodo_alumno actual = head->siguiente;
+    
+        pivote->siguiente = nullptr;
+        pivote->anterior = nullptr;
+    
+        Nodo_alumno menores = nullptr;
+        Nodo_alumno mayores = nullptr;
+    
+        while (actual != nullptr)
+        {
+            Nodo_alumno siguiente = actual->siguiente;
+    
+            actual->siguiente = nullptr;
+            actual->anterior = nullptr;
+    
+            if (actual->promedio_general >= pivote->promedio_general)
+            {
+                insertar_en_lista(menores, actual);
+            }
+            else if(actual->promedio_general == pivote->promedio_general)
+            {
+                if(strcmp(actual->nombre, pivote->nombre) < 0)
+                {
+                    insertar_en_lista(menores, actual);
+                }
+                else
+                {
+                    insertar_en_lista(mayores, actual);
+                }
+            }
+            else
+            {
+                insertar_en_lista(mayores, actual);
+            }
+    
+            actual = siguiente;
+        }
+    
+        menores = quick_sort_promedios(menores);
+        mayores = quick_sort_promedios(mayores);
+    
+        Nodo_alumno resultado;
+    
+        if (menores != nullptr)
+        {
+            resultado = menores;
+    
+            Nodo_alumno temp = menores;
+    
+            while (temp->siguiente != nullptr)
+            {
+                temp = temp->siguiente;
+            }
+    
+            temp->siguiente = pivote;
+            pivote->anterior = temp;
+        }
+        else
+        {
+            resultado = pivote;
+        }
+    
+        if (mayores != nullptr)
+        {
+            pivote->siguiente = mayores;
+            mayores->anterior = pivote;
+        }
+    
+        return resultado;
+}
+
+void encolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nodo_alumno alumno)
+{
+    Nodo_alumno nuevo_nodo = new Alumno;
+
+    *nuevo_nodo = *alumno;
+    nuevo_nodo->siguiente = nullptr;
+    nuevo_nodo->anterior = nullptr;
+
+    if (head_queue == nullptr)
+    {
+        head_queue = nuevo_nodo;
+        tail_queue = nuevo_nodo;
+    }
+    else
+    {
+        tail_queue->siguiente = nuevo_nodo;
+        tail_queue = nuevo_nodo;
+    }
+}
+
+Nodo_alumno desencolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue)
+{
+    if (head_queue != nullptr)
+    {
+        Nodo_alumno temp = head_queue;
+        head_queue = head_queue->siguiente;
+
+        if (head_queue == nullptr)
+        {
+            tail_queue = nullptr;
+        }
+
+        temp->siguiente = nullptr;
+        temp->anterior = nullptr;
+
+        return temp;
+    }
+    else
+    {
+        cout << "La cola esta vacia" << endl;
+        return nullptr;
+    }
+    
 }
