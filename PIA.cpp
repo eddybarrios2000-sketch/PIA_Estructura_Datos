@@ -1,5 +1,8 @@
 #include <iostream>
 #include <cstring>
+#include <cctype>
+#include <string>
+#include <sstream>
 using namespace std;
 
 //Lista doblemente enlazada para almacenar los datos de los alumnos
@@ -19,6 +22,15 @@ struct Alumno
 
 typedef struct Alumno* Nodo_alumno;
 
+// Funciones de validación
+bool validarNombre(char nombre[]);
+bool validarMatricula(int matricula);
+bool validarEdad(int edad);
+bool validarTelefono(int telefono);
+bool validarSiNo(string respuesta);
+int leerEntero();
+float leerFloat();
+
 void alta_alumno(Nodo_alumno& head);
 void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head);
 bool busqueda_binaria(Nodo_alumno& head, int matricula, int contador, Nodo_alumno& stack_head);
@@ -33,8 +45,6 @@ void control_inscripciones(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nod
 Nodo_alumno quick_sort_promedios(Nodo_alumno& head);
 void encolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nodo_alumno alumno);
 Nodo_alumno desencolar(Nodo_alumno& head_queue, Nodo_alumno& tail_queue);
-
-
 
 int main()
 {
@@ -57,7 +67,7 @@ int main()
         cout << "5. Control de inscripciones" << endl;
         cout << "6. Salir" << endl;
         cout << "Ingrese una opcion: ";
-        cin >> opcion;
+        opcion = leerEntero();
 
         switch (opcion)
         {
@@ -74,6 +84,12 @@ int main()
 
                     cout << "Desea ingresar un nuevo alumno? (si/no): ";
                     cin >> ans;
+                    
+                    while(!validarSiNo(ans))
+                    {
+                        cout << "Respuesta invalida. Ingrese 'si' o 'no': ";
+                        cin >> ans;
+                    }
 
                 } while (ans == "si");
 
@@ -89,7 +105,7 @@ int main()
                 break;
 
             case 4:
-				reportes(head, stack_head, contador);
+                reportes(head, stack_head, contador);
                 break;
 
             case 5:
@@ -108,29 +124,201 @@ int main()
     } while (opcion != 6);
 }
 
+bool validarNombre(char nombre[])
+{
+    if(strlen(nombre) == 0)
+        return false;
+    
+    for(int i = 0; i < strlen(nombre); i++)
+    {
+        if(!isalpha(nombre[i]) && nombre[i] != ' ')
+            return false;
+    }
+    return true;
+}
+
+bool validarMatricula(int matricula)
+{
+    if(matricula < 10000000 || matricula > 99999999)
+        return false;
+    return true;
+}
+
+bool validarEdad(int edad)
+{
+    if(edad < 1 || edad > 199)
+        return false;
+    return true;
+}
+
+bool validarTelefono(int telefono)
+{
+    if(telefono < 10000000 || telefono > 99999999)
+        return false;
+    return true;
+}
+
+bool validarSiNo(string respuesta)
+{
+    return (respuesta == "si" || respuesta == "no");
+}
+
+int leerEntero()
+{
+    string input;
+    int numero;
+    
+    while(true)
+    {
+        cin >> input;
+        
+        bool esNumero = true;
+        for(int i = 0; i < input.length(); i++)
+        {
+            if(!isdigit(input[i]))
+            {
+                esNumero = false;
+                break;
+            }
+        }
+        
+        if(esNumero)
+        {
+            stringstream ss(input);
+            ss >> numero;
+            return numero;
+        }
+        else
+        {
+            cout << "Error: Debe ingresar solo numeros. Intente nuevamente: ";
+        }
+    }
+}
+
+float leerFloat()
+{
+    string input;
+    float numero;
+    int puntos = 0;
+    
+    while(true)
+    {
+        cin >> input;
+        
+        bool esNumero = true;
+        puntos = 0;
+        
+        for(int i = 0; i < input.length(); i++)
+        {
+            if(input[i] == '.')
+            {
+                puntos++;
+                if(puntos > 1)
+                {
+                    esNumero = false;
+                    break;
+                }
+            }
+            else if(!isdigit(input[i]))
+            {
+                esNumero = false;
+                break;
+            }
+        }
+        
+        if(esNumero)
+        {
+            stringstream ss(input);
+            ss >> numero;
+            return numero;
+        }
+        else
+        {
+            cout << "Error: Debe ingresar un numero valido. Intente nuevamente: ";
+        }
+    }
+}
+
 void alta_alumno(Nodo_alumno& head)
 {
     Nodo_alumno nuevo_alumno = new Alumno;
+    bool datoValido;
+    string input;
 
-    cout << "Ingrese la matricula del alumno: ";
-    cin >> nuevo_alumno->matricula;
+    do
+    {
+        datoValido = true;
+        cout << "Ingrese la matricula del alumno (8 digitos): ";
+        nuevo_alumno->matricula = leerEntero();
+        
+        if(!validarMatricula(nuevo_alumno->matricula))
+        {
+            cout << "Error: La matricula debe tener exactamente 8 digitos" << endl;
+            datoValido = false;
+        }
+        
+    } while(!datoValido);
 
-    cout << "Ingrese el nombre del alumno: ";
-    cin >> ws;
-    cin.get(nuevo_alumno->nombre, 100);
+    do
+    {
+        datoValido = true;
+        cout << "Ingrese el nombre del alumno (solo letras y espacios): ";
+        cin >> ws;
+        cin.getline(nuevo_alumno->nombre, 100);
+        
+        if(!validarNombre(nuevo_alumno->nombre))
+        {
+            cout << "Error: El nombre solo puede contener letras y espacios, y no puede estar vacio" << endl;
+            datoValido = false;
+        }
+        
+    } while(!datoValido);
 
-    cout << "Ingrese la edad del alumno: ";
-    cin >> nuevo_alumno->edad;
+    do
+    {
+        datoValido = true;
+        cout << "Ingrese la edad del alumno (1-199): ";
+        nuevo_alumno->edad = leerEntero();
+        
+        if(!validarEdad(nuevo_alumno->edad))
+        {
+            cout << "Error: La edad debe ser mayor a 1 y menor a 200" << endl;
+            datoValido = false;
+        }
+        
+    } while(!datoValido);
 
-    cout << "Ingrese el promedio general del alumno: ";
-    cin >> nuevo_alumno->promedio_general;
+    do
+    {
+        datoValido = true;
+        cout << "Ingrese el promedio general del alumno (0-100): ";
+        nuevo_alumno->promedio_general = leerFloat();
+        
+        if(nuevo_alumno->promedio_general < 0 || nuevo_alumno->promedio_general > 100)
+        {
+            cout << "Error: El promedio debe estar entre 0 y 100" << endl;
+            datoValido = false;
+        }
+        
+    } while(!datoValido);
 
     cout << "Ingrese la direccion del alumno: ";
     cin >> ws;
-    cin.get(nuevo_alumno->direccion, 100);
+    cin.getline(nuevo_alumno->direccion, 100);
 
-    cout << "Ingrese el telefono del alumno: ";
-    cin >> nuevo_alumno->telefono;
+    do
+    {
+        datoValido = true;
+        cout << "Ingrese el telefono del alumno (8 digitos): ";
+        nuevo_alumno->telefono = leerEntero();
+        
+        if(!validarTelefono(nuevo_alumno->telefono))
+        {
+            cout << "Error: El telefono debe tener exactamente 8 digitos" << endl;
+            datoValido = false;
+        }
+        
+    } while(!datoValido);
 
     nuevo_alumno->siguiente = nullptr;
     nuevo_alumno->anterior = nullptr;
@@ -164,14 +352,14 @@ void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head)
         cout << "1. Buscar por matricula" << endl;
         cout << "2. Buscar por nombre" << endl;
 
-        cin >> opcion;
+        opcion = leerEntero();
 
         if (opcion == 1)
         {
             int matricula;
 
             cout << "Ingrese la matricula del alumno: ";
-            cin >> matricula;
+            matricula = leerEntero();
 
             if (busqueda_binaria(head, matricula, contador, stack_head))
             {
@@ -192,7 +380,7 @@ void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head)
 
             cout << "Ingrese el nombre del alumno: ";
             cin >> ws;
-            cin.get(nombre, 100);
+            cin.getline(nombre, 100);
 
             Nodo_alumno temp = head;
 
@@ -239,9 +427,19 @@ void baja_alumno(Nodo_alumno& head, int& contador, Nodo_alumno& stack_head)
                 cout << "Alumno no encontrado" << endl;
             }
         }
+        else
+        {
+            cout << "Opcion invalida" << endl;
+        }
 
         cout << "Desea eliminar otro alumno? (si/no): ";
         cin >> ans;
+        
+        while(!validarSiNo(ans))
+        {
+            cout << "Respuesta invalida. Ingrese 'si' o 'no': ";
+            cin >> ans;
+        }
 
     } while (ans == "si");
 }
@@ -465,6 +663,12 @@ void recuperar_alumno(Nodo_alumno& head, Nodo_alumno& stack_head, int& contador)
         cout << "Desea recuperar al siguiente alumno? (si/no): ";
         cin >> ws;
         cin.getline(ans, 3);
+        
+        while(strcmp(ans, "si") != 0 && strcmp(ans, "no") != 0)
+        {
+            cout << "Respuesta invalida. Ingrese 'si' o 'no': ";
+            cin.getline(ans, 3);
+        }
 
     } while (strcmp(ans, "si") == 0);
     
@@ -509,7 +713,7 @@ void reportes(Nodo_alumno& head, Nodo_alumno& stack_head, int contador)
         cout << "3. Alumnos inactivos (pila de bajas)" << endl;
         cout << "4. Volver al menu principal" << endl;
         cout << "Ingrese una opcion: ";
-        cin >> opcion_reporte;
+        opcion_reporte = leerEntero();
         
         switch(opcion_reporte)
         {
@@ -619,9 +823,9 @@ void control_inscripciones(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nod
 
     cout << "\n----- CONTROL DE INSCRIPCIONES -----" << endl;
     cout << "Ingrese el numero de grupos disponibles: ";
-    cin >> grupos;
+    grupos = leerEntero();
     cout << "Ingrese el numero maximo de alumnos por grupo: ";
-    cin >> alumnos;
+    alumnos = leerEntero();
     int matriz[grupos][alumnos];
 
     Nodo_alumno temp = head_sorted_prom;
@@ -649,9 +853,6 @@ void control_inscripciones(Nodo_alumno& head_queue, Nodo_alumno& tail_queue, Nod
             }
         }
     }
-
-
-
 }
 
 Nodo_alumno quick_sort_promedios(Nodo_alumno& head)
