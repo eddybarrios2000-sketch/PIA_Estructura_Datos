@@ -14,7 +14,7 @@ EFREN SOTO MARTINEZ
 using namespace std;
 
 //Lista doblemente enlazada para almacenar los datos de los alumnos
-// Metodo de ordenamiento indefinido, dicho ordenamiento se debe de hacer por su matricula
+// Metodo de ordenamiento quick sort para mantener la lista ordenada por matricula, tambien implementado para promedios y nombres
 
 struct Alumno
 {
